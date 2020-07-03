@@ -2,6 +2,7 @@
 Arduino based project for each participant of synth jam sessions.
 
 ## Required hardware
+  * Soundcraft Ui24r digital mixing console
   * NodeMCU
   * PCD8544 LCD Display 
   * 4 Rotary push encoders
