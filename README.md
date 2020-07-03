@@ -15,3 +15,6 @@ The functionalitys of the 4 rotary encoders are:
   * Group mix (volume of all others except the musicians audio) very similar to ui24r's native more-me functionality
   * volume of musicians audio to his headphones
   * volume of musicians audio to master
+
+
+![alt text](https://github.com/othmar52/ui24r-arduceptor/blob/master/media/arduceptor-circuit-v1.png?raw=true)
