@@ -23,26 +23,23 @@ uint8_t currentStage = 0;
 #include <Wire.h>
 #include "Adafruit_MCP23017.h"
 
-Adafruit_MCP23017 mcp;
+Adafruit_MCP23017 mcp1;
+Adafruit_MCP23017* mcpr = &mcp1;
 
 void setup() {
-  //Serial.begin(9600);
   Serial.begin(19200);
-
-
-  // Initialize the P.print(
-  mcp.begin();
+  pinMode(D1, INPUT);
+  pinMode(D2, INPUT);
+  mcp1.begin(0);
   
-  // Define GPA0 (physical pin 21) as output pin
-  //mcp.pinMode(0, OUTPUT);
 
-  setupEncoder();
+  setupEncoders();
   setupNetwork();
   //setupEncoder();
   setupDisplaystuff();
 }
 void loop() {
-  loopEncoder();
+  loopEncoders();
   loopApp();
   loopDisplayStuff();
   loopNetwork();
