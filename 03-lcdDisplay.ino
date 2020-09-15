@@ -9,8 +9,6 @@
 #define inputChannels 1
 
 // Nokia 5110 LCD module connections (CLK, DIN, D/C, CS, RST)
-//////Adafruit_PCD8544 display = Adafruit_PCD8544(D4, D3, D2, D1, D0);
-//Adafruit_PCD8544 display = Adafruit_PCD8544(D4, D3, D6, D5, D0);
 Adafruit_PCD8544 display = Adafruit_PCD8544(D8, D7, D6, D0, D5);
 
 
@@ -31,7 +29,7 @@ void setupDisplaystuff(){
  
   // you can change the contrast around to adapt the display
   // for the best viewing!
-  display.setContrast(50);
+  display.setContrast(60);
  
   display.display(); // show splashscreen
   

@@ -150,14 +150,14 @@ void handleEncoderChangeStageRun(uint8_t eIdx, bool doIncrement) {
   if(eIdx == 0) { // enc 1: groupMix (all others) to headphone
     return changeGroupMixVolume(doIncrement);
   }
-  if(eIdx == 5) { // enc 2: me to headphones
+  if(eIdx == 1) { // enc 2: me to headphones
     changeMyInputToHeadphonesVolume(doIncrement);
     if(linkMyLevelMode == true) {
       setMyInputToMasterVolume(inputToAuxLevels[myInput][myAux]);
     }
     return;
   }
-  if(eIdx == 5) { // enc 3: me to master volume
+  if(eIdx == 2) { // enc 3: me to master volume
     changeMyInputToMasterVolume(doIncrement);
     if(linkMyLevelMode == true) {
       setMyInputToHeadphonesVolume(inputToMasterLevels[myInput]);
