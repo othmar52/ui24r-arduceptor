@@ -8,7 +8,6 @@
  */
 
 #include "WebSocketClientMod.h"
-#include <WiFiClientSecure.h>
 
 #define WS_FIN            0x80
 #define WS_OPCODE_TEXT    0x01
@@ -25,10 +24,7 @@
 #endif
 
 WebSocketClientMod::WebSocketClientMod(bool secure) {
-	if (secure)
-		this->client = new WiFiClientSecure;
-	else
-		this->client = new WiFiClient;
+	this->client = new WiFiClient;
 }
 
 WebSocketClientMod::~WebSocketClientMod() {
