@@ -40,41 +40,41 @@ uint8_t collectedAuxLevels = 0;
  * amount of data that is not relevant for us
  */
 void handleIncomingMixerMessage(String msg) {
-  String isolateMessage = "";
+  String isolatedMessage = "";
   bool dropMessage = false;
    // we need to split by new line
   for(unsigned int i = 0; i<msg.length(); i++) {
     if(msg[i] == '\n') {
       if(dropMessage == true) {
-        //Serial.println("dropping msg");
-        isolateMessage = "";
+        ////debug("dropping msg");
+        isolatedMessage = "";
         dropMessage = false;
         continue;
       }
-      parseIncomingMessage(isolateMessage);
+      parseIncomingMessage(isolatedMessage);
       dropMessage = false;
-      isolateMessage = "";
+      isolatedMessage = "";
       continue;
     }
-    // isolateMessage += (msg[i] == '^') ? '=' : msg[i];  // regex lib cant handle circumflex char. at least i want able to write the regex
-    isolateMessage += msg[i];
-    if(isolateMessage == "2::" || isolateMessage == "3:::") {
-      isolateMessage = "";
+    // isolatedMessage += (msg[i] == '^') ? '=' : msg[i];  // regex lib cant handle circumflex char. at least i wasn't able to write the regex
+    isolatedMessage += msg[i];
+    if(isolatedMessage == "2::" || isolatedMessage == "3:::") {
+      isolatedMessage = "";
       continue;  
     }
 
     
-    if(isolateMessage.length() == 4) {
-      if(isolateMessage == "SETS" || isolateMessage == "SETD") {
+    if(isolatedMessage.length() == 4) {
+      if(isolatedMessage == "SETS" || isolatedMessage == "SETD") {
         continue;
       }
       dropMessage = true;
-      //Serial.println("going to drop " + isolateMessage);
+      ////debug("going to drop " + isolatedMessage);
     }
   }
   if(dropMessage == false) {
-    parseIncomingMessage(isolateMessage);
-    isolateMessage = "";
+    parseIncomingMessage(isolatedMessage);
+    isolatedMessage = "";
   }
 }
 
@@ -83,7 +83,7 @@ void incrementDataCollectCounter(String subject) {
     updateGroupMix();
     return;
   }
-  //debug(String(getPercentCollectedAllData()));
+  ////debug(String(getPercentCollectedAllData()));
   if(subject == "collectedAuxStereoIndex") { collectedAuxStereoIndex++; return; } 
   if(subject == "collectedAuxLevels") { collectedAuxLevels++; return; } 
   if(subject == "collectedInputToAuxLevels") { collectedInputToAuxLevels++; return; } 
@@ -119,8 +119,8 @@ void parseIncomingMessage(String msg) {
   }
 
   if (isAux == false && isInput == false) {
-    //Serial.print("dropping (no i or a): ");
-    //Serial.println(msg);
+    ////debug("dropping (not i or a): ");
+    ////debug(msg);
     return;
   }
 
@@ -156,11 +156,11 @@ void parseIncomingMessage(String msg) {
     return handleParamName(isInput, isAux, true, msg);
   }
 
-  if (msg[9] == 'm' && msg[12] == 'e') {              // we have mute param with one digit as channel [a.0.name]
+  if (msg[9] == 'm' && msg[12] == 'e') {              // we have mute param with one digit as channel [a.0.mute]
     return handleParamMute(isInput, isAux, false, msg);
   }
 
-  if (msg[10] == 'm' && msg[13] == 'e') {              // we have mute param with two digits as channel [i.12.name]
+  if (msg[10] == 'm' && msg[13] == 'e') {              // we have mute param with two digits as channel [i.12.mute]
     return handleParamMute(isInput, isAux, true, msg);
   }
 }
@@ -168,7 +168,7 @@ void parseIncomingMessage(String msg) {
 
 
 void handleParamMix(bool isInput, bool isOutput, bool isTwoDigitChannel, String msg) {
-  //Serial.print("handleParamMix() "); Serial.println(msg);
+  ////debug("handleParamMix() "); //debug(msg);
   uint8_t channelNumberInt = extractChannelNumberFromMessage(msg, isTwoDigitChannel);
 
   if (isInput == true) {
@@ -188,12 +188,11 @@ void handleParamMix(bool isInput, bool isOutput, bool isTwoDigitChannel, String 
 }
 
 void handleParamStereoIndex(bool isInput, bool isOutput, bool isTwoDigitChannel, String msg) {
-  //Serial.print("handleParamStereoIndex() "); Serial.println(msg);
+  ////debug("handleParamStereoIndex() "); //debug(msg);
   uint8_t channelNumberInt = extractChannelNumberFromMessage(msg, isTwoDigitChannel);
   int8_t incomingStereoValue = stereoIndexValue(getDelimitedValue(msg, '^', 2));
   if (isInput == true) {
     if (channelNumberInt >= INPUTS) {
-      debug("// input index too big");
       return;  // input index too big
     }
     inputStereoIndex[channelNumberInt] = incomingStereoValue;
@@ -208,7 +207,7 @@ void handleParamStereoIndex(bool isInput, bool isOutput, bool isTwoDigitChannel,
 }
 
 void handleParamAuxSend(bool isTwoDigitChannel, String msg) {
-  //Serial.print("handleParamAuxSend() "); Serial.println(msg);
+  ////debug("handleParamAuxSend() "); //debug(msg);
   uint8_t channelNumberInt = extractChannelNumberFromMessage(msg, isTwoDigitChannel);
   uint8_t auxChannel = extractAuxSendChannelNumberFromMessage(msg, isTwoDigitChannel);
 
@@ -218,15 +217,15 @@ void handleParamAuxSend(bool isTwoDigitChannel, String msg) {
   if (auxChannel >= AUX) {
     return;  // aux index too big
   }
-  //Serial.print("with internal handleParamAuxSend: ");
-  //Serial.println(levelToInternal(getDelimitedValue(msg, '^', 2)));
+  ////debug("with internal handleParamAuxSend: ");
+  ////debug(levelToInternal(getDelimitedValue(msg, '^', 2)));
 
   inputToAuxLevels[channelNumberInt][auxChannel] = levelToInternal(getDelimitedValue(msg, '^', 2));
   incrementDataCollectCounter("collectedInputToAuxLevels");
 }
 
 void handleParamName(bool isInput, bool isOutput, bool isTwoDigitChannel, String msg) {
-  //Serial.print("handleParamName() "); Serial.println(msg);
+  ////debug("handleParamName() "); //debug(msg);
   uint8_t channelNumberInt = extractChannelNumberFromMessage(msg, isTwoDigitChannel);
 
   if (isInput == true) {
@@ -246,7 +245,7 @@ void handleParamName(bool isInput, bool isOutput, bool isTwoDigitChannel, String
 
 
 void handleParamMute(bool isInput, bool isOutput, bool isTwoDigitChannel, String msg) {
-  //debug("handleParamMute() " + msg);
+  ////debug("handleParamMute() " + msg);
   uint8_t channelNumberInt = extractChannelNumberFromMessage(msg, isTwoDigitChannel);
 
   if (isInput == true) {
@@ -311,7 +310,7 @@ String getDelimitedValue(String data, char separator, int index)
 
 /**
    instead of dealing with floatvalues like "SETD=i.11.mix=0.1015118791" our
-   internal handling is wit unsigned integers
+   internal handling is with unsigned integers
 */
 uint32_t levelToInternal(String level) {
   if (level == "0") {

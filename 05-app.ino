@@ -24,7 +24,7 @@ void loopApp() {
       while (WiFi.status() != WL_CONNECTED)
       {
         delay(500);
-        debug(".");
+        //debug(".");
       }
       showConnectedToWlanScreen();
       delay(1000);
@@ -35,7 +35,7 @@ void loopApp() {
       while (!ws.isConnected()) 
       {
         delay(500);
-        debug(".");
+        //debug(".");
       }
       showConnectedToMixerScreen();
       delay(500);
@@ -82,6 +82,7 @@ void loopApp() {
       }
       allDataCollected = true;
       updateGroupMix();
+      display.clearDisplay();
       currentStage = STAGE_RUN;
       return;
     case STAGE_RUN:
@@ -209,8 +210,8 @@ void handleMonoStereoCombinationsForAuxMix(uint8_t inIndex, uint8_t auxIndex, ui
   const bool inIsStereo = (inputStereoIndex[inIndex] == 0) ? true : false;
   const bool auxIsStereo = (auxStereoIndex[auxIndex] == 0) ? true : false;
   const String newValueFloat = internalToLevel(newValueInternal);
-  //debug("inIsStereo " + String(inIsStereo) + " for i." + String(inIndex) );
-  //debug("auxIsStereo " + String(auxIsStereo) + " for a." + String(auxIndex) );
+  ////debug("inIsStereo " + String(inIsStereo) + " for i." + String(inIndex) );
+  ////debug("auxIsStereo " + String(auxIsStereo) + " for a." + String(auxIndex) );
 
   // all scenarios: mono -> mono AND stereo -> stereo  AND stereo -> mono AND mono -> stereo
   if(inputToAuxLevels[inIndex][auxIndex] != newValueInternal) {
@@ -312,9 +313,9 @@ void updateGroupMix() {
 
   const float factor = groupMixValue / (zeroDbPos+0.0);
   uint32_t auxLevelForMyMix;
-  //debug("groupMixValue: "+ String(groupMixValue));
-  //debug("factor: "+ String(factor));
-  //debug("zeroDbPos: "+ String(zeroDbPos));
+  ////debug("groupMixValue: "+ String(groupMixValue));
+  ////debug("factor: "+ String(factor));
+  ////debug("zeroDbPos: "+ String(zeroDbPos));
   for(uint8_t i=0;i<INPUTS; i++) {
     if(i == myInput) {
       // skip my mix to headphone because we have a separate encoder for that
@@ -327,7 +328,7 @@ void updateGroupMix() {
 
     auxLevelForMyMix = (inputMutes[i] == false) ? inputToMasterLevels[i] * (factor+0.0) : 0;
     auxLevelForMyMix = (auxLevelForMyMix > levelFactor) ? levelFactor : auxLevelForMyMix;
-    //debug("newValueFloat: "+ String(newValueFloat) + " for i." + String(i));
+    ////debug("newValueFloat: "+ String(newValueFloat) + " for i." + String(i));
     //if(auxLevelForMyMix == inputToAuxLevels[i][myAux]) {
     //  // no change
     //  continue;
@@ -338,7 +339,7 @@ void updateGroupMix() {
 
 void sendMixerCommand(String paramName, String(paramValue)) {
   String cmd = "3:::SETD^" + paramName + "^" + paramValue;
-  debug("SENDING: " + cmd);
+  //debug("SENDING: " + cmd);
   ws.send(cmd);
 }
 

@@ -65,7 +65,7 @@ uint8_t getPercentCollectedAllData() {
   haveValues += collectedAuxStereoIndex;
   haveValues += collectedAuxMutes;
   haveValues += collectedAuxLevels;
-  //debug("have: " + String(haveValues) + "\tneed: " + String(needValues));
+  ////debug("have: " + String(haveValues) + "\tneed: " + String(needValues));
   if(haveValues >= needValues) {
     return 100;
   }
@@ -102,9 +102,14 @@ void setPreviousChooseInput() {
 }
 
 String getCurrentChooseInputName() {
-  String theName = inputNames[currentChooseInputIndex] + String("\nchannel: " + String((currentChooseInputIndex + 1)));
-  theName += (inputStereoIndex[currentChooseInputIndex] == 0) ? "+" + String((currentChooseInputIndex + 2)) : "";
-  return theName;
+  return inputNames[currentChooseInputIndex];
+}
+
+
+String getCurrentChooseInputChannelString() {
+  String theChannelString = String(currentChooseInputIndex + 1);
+  theChannelString += (inputStereoIndex[currentChooseInputIndex] == 0) ? "+" + String((currentChooseInputIndex + 2)) + "" : "";
+  return theChannelString;
 }
 
 /**
@@ -137,7 +142,12 @@ void setPreviousChooseAux() {
 }
 
 String getCurrentChooseAuxName() {
-  String theName = auxNames[currentChooseAuxIndex] + String("\nchannel: " + String((currentChooseAuxIndex + 1)));
-  theName += (auxStereoIndex[currentChooseAuxIndex] == 0) ? "+" + String((currentChooseAuxIndex + 2)) + "" : "";
-  return theName;
+  return auxNames[currentChooseAuxIndex];
+}
+
+// channel numbers which are printed on the mixer hardware
+String getCurrentChooseAuxChannelString() {
+  String theChannelString = String((currentChooseAuxIndex + 1));
+  theChannelString += (auxStereoIndex[currentChooseAuxIndex] == 0) ? "+" + String((currentChooseAuxIndex + 2)) + "" : "";
+  return theChannelString;
 }

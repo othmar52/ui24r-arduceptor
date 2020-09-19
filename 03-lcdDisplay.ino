@@ -65,11 +65,12 @@ void showConnectedToMixerScreen() {
 }
 
 void showChooseInputScreen() {
-  showText("choose input\n\n" + String(getCurrentChooseInputName()));
+  showChannelText("choose input\n\n" + getCurrentChooseInputName(), getCurrentChooseInputChannelString());
 }
 
 void showChooseAuxScreen() {
-  showText("choose output\n\n" + String(getCurrentChooseAuxName()));
+  //showText("choose output\n\n" + getCurrentChooseAuxName() + " " + getCurrentChooseAuxChannelString());
+  showChannelText("choose output\n\n" + getCurrentChooseAuxName(), getCurrentChooseAuxChannelString());
 }
 
 void showCollectingInputsScreen() {
@@ -102,32 +103,63 @@ void showCollectingAllDataScreen___NUMERIC_PERCENT() {
   showText("collecting\nmixer data...\n" + String(getPercentCollectedAllData()) + "%");
 }
 
-void showLevelScreen() {
-  display.clearDisplay();
+
+// helper var to track if there had been changes in display
+uint8_t barHeights[totalBars] = {};
+uint8_t previousBarHeights[totalBars] = {};
+
+
+void calculateBarHeights() {
 
   uint8_t barHeight;
   for(uint8_t i = 0; i<totalBars; i ++) {
     
     if (i == 1) {
       // group slider
-      barHeight = levelToBarHeight(groupMixValue);
-      display.fillRect(bars[i][0], LCD_Y-barHeight, bars[i][1] - bars[i][0], barHeight, 1);
+      barHeights[i] = levelToBarHeight(groupMixValue);
       continue;
     }
     if (i > 0 && i < totalBars - inputChannels) {
       // me out to my headphones
-      barHeight = levelToBarHeight(inputToAuxLevels[myInput][myAux]);
-      display.drawRect(bars[i][0], LCD_Y-barHeight, bars[i][1] - bars[i][0], barHeight, 1);  
-    } else {
-      if(i == 0) {
-        // my headphone level
-        barHeight = levelToBarHeight(auxLevels[myAux]);
-      } else {
-        barHeight = levelToBarHeight(inputToMasterLevels[myInput]);  
-      }
-      // me out to master and headphone level
-      display.fillRect(bars[i][0], LCD_Y-barHeight, bars[i][1]- bars[i][0], barHeight, 1);  
+      barHeights[i] = levelToBarHeight(inputToAuxLevels[myInput][myAux]);
+      continue;
     }
+    if(i == 0) {
+      // my headphone level
+      barHeights[i] = levelToBarHeight(auxLevels[myAux]);
+      continue;
+    }
+    // me out to master
+    barHeights[i] = levelToBarHeight(inputToMasterLevels[myInput]);  
+  }
+}
+
+
+void showLevelScreen() {
+  calculateBarHeights();
+  //display.clearDisplay();
+
+  for(uint8_t i = 0; i<totalBars; i ++) {
+    if(previousBarHeights[i] == barHeights[i]) {
+      // dimensions had not changed since last redraw...
+      continue;
+    }
+    previousBarHeights[i] = barHeights[i];
+
+    // clear the rect of the bar that changed
+    display.fillRect(bars[i][0], 0, bars[i][1] - bars[i][0], LCD_Y, 0);
+
+    if (i == 1) {
+      // group slider
+      display.fillRect(bars[i][0], LCD_Y-barHeights[i], bars[i][1] - bars[i][0], barHeights[i], 1);
+      continue;
+    }
+    if (i > 0 && i < totalBars - inputChannels) {
+      // me out to my headphones
+      display.drawRect(bars[i][0], LCD_Y-barHeights[i], bars[i][1] - bars[i][0], barHeights[i], 1);
+      continue;
+    }
+    display.fillRect(bars[i][0], LCD_Y-barHeights[i], bars[i][1]- bars[i][0], barHeights[i], 1);
   }
 
   display.display();
@@ -140,12 +172,24 @@ uint8_t levelToBarHeight(uint32_t barValue) {
 
 void showText(String textToDisplay) {
   display.clearDisplay();
-  
-  // text display tests
+
   display.setTextSize(1);
   display.setTextColor(BLACK);
   display.setCursor(3,3);
   display.println(textToDisplay);
+  display.display();
+}
+
+void showChannelText(String channelName, String channelNumber) {
+  display.clearDisplay();
+
+  display.setTextSize(1);
+  display.setTextColor(BLACK);
+  display.setCursor(3,3);
+  display.print(channelName);
+  display.setTextColor(WHITE, BLACK);
+  display.print( " " + channelNumber + " ");
+  display.setTextColor(BLACK, WHITE);
   display.display();
 }
 

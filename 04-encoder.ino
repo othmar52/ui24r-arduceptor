@@ -46,9 +46,9 @@ BounceMcp * buttons = new BounceMcp[NUM_BUTTONS];
 
 void RotaryEncoderChanged(bool clockwise, int id) {
   buttons[id].update();
-  debug("Encoder " + String(id) + ": "
-                 + (clockwise ? String("clockwise ") : String("counter-clock-wise "))
-                 + (buttons[id].read() ? String("") : String("(pressed)")));
+  //debug("Encoder " + String(id) + ": "
+  //               + (clockwise ? String("clockwise ") : String("counter-clock-wise "))
+  //               + (buttons[id].read() ? String("") : String("(pressed)")));
   BUTTON_ROTATION[id] = true;
   handleEncoderChange(id, clockwise);
 
@@ -96,7 +96,7 @@ void loopEncoders() {
 
     if ( buttons[i].rose() ) {
       // When button was released...
-      debug("Button " + String(i) + ": up (push duration: " + String(millis() - BUTTON_LASTDOWN[i]) + " ms)" );
+      //debug("Button " + String(i) + ": up (push duration: " + String(millis() - BUTTON_LASTDOWN[i]) + " ms)" );
       handleEncoderPush(i, millis() - BUTTON_LASTDOWN[i]);
     }
   }

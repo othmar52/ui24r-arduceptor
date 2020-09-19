@@ -21,8 +21,8 @@ void setupNetwork()
 }
 
 void connectWlan() {
-   debug("Connecting to ");
-   debug(ssid);
+   //debug("Connecting to ");
+   //debug(ssid);
    WiFi.begin(ssid, pass);
    WiFi.setAutoReconnect (true);
 }
@@ -38,7 +38,7 @@ void reconnectWlan() {
 void loopNetwork() {
 
   if (!ws.isConnected()) {
-    debug("connecting to websocket...");
+    //debug("connecting to websocket...");
     ws.connect("10.0.1.124", "/", 80);
     return;
   }
