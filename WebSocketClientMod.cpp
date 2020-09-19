@@ -1,4 +1,11 @@
-//#define DEBUG
+
+/**
+ * local modified copy of WebSocketClient because of issues with Sec-WebSocket-Key
+ * vanilla version always resulted in "400 Bad Request" on server side (Soundcraft ui24r Mixing Console)
+ * ugly workaround: hardcoded value of Sec-WebSocket-Key header
+ *
+ * TODO: replace hardcoded value Sec-WebSocket-Key
+ */
 
 #include "WebSocketClientMod.h"
 #include <WiFiClientSecure.h>
@@ -72,8 +79,8 @@ bool WebSocketClientMod::connect(String host, String path, int port) {
 			"Connection: Upgrade\r\n"
 			"Upgrade: websocket\r\n"
 			"Sec-WebSocket-Version: 13\r\n"
-			//"Sec-WebSocket-Key: " + generateKey() + "=\r\n";  // this results in "400 Bad Request on server side"
-			"Sec-WebSocket-Key: O3d/EDx+ZlmPL5qfQu3Itg==\r\n";
+			//"Sec-WebSocket-Key: " + generateKey() + "=\r\n";  // this results in "400 Bad Request" on server side
+			"Sec-WebSocket-Key: O3d/EDx+ZlmPL5qfQu3Itg==\r\n";  // hardcoded key seems to work
 
 	if (authorizationHeader != "")
 		handshake += "Authorization: " + authorizationHeader + "\r\n";

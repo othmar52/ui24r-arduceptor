@@ -29,9 +29,11 @@ void setupDisplaystuff(){
  
   // you can change the contrast around to adapt the display
   // for the best viewing!
-  display.setContrast(60);
+  display.setContrast(50);
+
+  display.setRotation(2);
  
-  display.display(); // show splashscreen
+  display.display();
   
  
 }
@@ -101,9 +103,6 @@ void showCollectingAllDataScreen___NUMERIC_PERCENT() {
 }
 
 void showLevelScreen() {
-  
-  
-
   display.clearDisplay();
 
   uint8_t barHeight;
@@ -121,14 +120,12 @@ void showLevelScreen() {
       display.drawRect(bars[i][0], LCD_Y-barHeight, bars[i][1] - bars[i][0], barHeight, 1);  
     } else {
       if(i == 0) {
-        // my headphnoe level
+        // my headphone level
         barHeight = levelToBarHeight(auxLevels[myAux]);
       } else {
         barHeight = levelToBarHeight(inputToMasterLevels[myInput]);  
       }
       // me out to master and headphone level
-      
-      
       display.fillRect(bars[i][0], LCD_Y-barHeight, bars[i][1]- bars[i][0], barHeight, 1);  
     }
   }
@@ -182,66 +179,3 @@ void calculateBarDimensions()
   bars[1][0] = tmp;
 
 }
-
-
-
-
-void showTime() {
-  display.clearDisplay();
-  
-  // text display tests
-  display.setTextSize(2);
-  display.setTextColor(BLACK);
-  display.setCursor(3,3);
-  display.println(String(millis()/1000));
-  display.display();
-}
-
-
-
- 
-
- 
-
-void testdrawcircle(void) {
-  for (int16_t i=0; i<display.height(); i+=2) {
-    display.drawCircle(display.width()/2, display.height()/2, i, BLACK);
-    display.display();
-  }
-}
- 
-void testfillrect(void) {
-  uint8_t color = 1;
-  for (int16_t i=0; i<display.height()/2; i+=3) {
-    // alternate colors
-    display.fillRect(i, i, display.width()-i*2, display.height()-i*2, color%2);
-    display.display();
-    color++;
-  }
-}
- 
-void testdrawroundrect(void) {
-  for (int16_t i=0; i<display.height()/2-2; i+=2) {
-    display.drawRoundRect(i, i, display.width()-2*i, display.height()-2*i, display.height()/4, BLACK);
-    display.display();
-  }
-}
- 
-void testfillroundrect(void) {
-  uint8_t color = BLACK;
-  for (int16_t i=0; i<display.height()/2-2; i+=2) {
-    display.fillRoundRect(i, i, display.width()-2*i, display.height()-2*i, display.height()/4, color);
-    if (color == WHITE) color = BLACK;
-    else color = WHITE;
-    display.display();
-  }
-}
-   
-void testdrawrect(void) {
-  for (int16_t i=0; i<display.height()/2; i+=2) {
-    display.drawRect(i, i, display.width()-2*i, display.height()-2*i, BLACK);
-    display.display();
-  }
-}
- 
- 

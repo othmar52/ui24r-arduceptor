@@ -1,17 +1,15 @@
 
 
-
-unsigned long lastWlanConnectAttempt = 0;
-uint16_t wlanConnectInterval = 5000;
-
-
-
 uint8_t currentChooseInputIndex = INPUTS + 1;
 uint8_t currentChooseAuxIndex = AUX + 1;
 bool myInputAlreadyDefined = false;
 bool myAuxAlreadyDefined = false;
 
-uint32_t stepSize = levelFactor/20;
+bool headPhoneLevelMode = false;
+
+// precision how much volume change gets applied on encoder rotation step
+// TODO: dynamic stepSize (bigger value on fast rotation, lower value on slow rotation)
+uint32_t stepSize = levelFactor/30;
 
 void loopApp() {
   switch(currentStage) {
@@ -23,10 +21,10 @@ void loopApp() {
       return;
     case STAGE_CONNECTING_WLAN:
       showConnectingToWlanScreen();
-      while (WiFi.status() != WL_CONNECTED) 
+      while (WiFi.status() != WL_CONNECTED)
       {
         delay(500);
-        Serial.print(".");
+        debug(".");
       }
       showConnectedToWlanScreen();
       delay(1000);
@@ -37,13 +35,11 @@ void loopApp() {
       while (!ws.isConnected()) 
       {
         delay(500);
-        Serial.print(".");
+        debug(".");
       }
       showConnectedToMixerScreen();
       delay(500);
       currentStage = STAGE_COLLECTINPUTS;
-      
-      // currentStage = STAGE_COLLECTALLDATA;    // temporary...
       return;
     case STAGE_COLLECTINPUTS: {
       if(getPercentCollectedInputs() != 100) {
@@ -55,14 +51,6 @@ void loopApp() {
       return;
     }
     case STAGE_CHOOSEINPUT:
-      ////////////////////////////////////////////////////////////
-      // TODO: configure stuff with encoder.
-      // for now set the input hardcoded
-      //myInput = 0;
-      //myInputAlreadyDefined = true;
-      //currentStage = STAGE_CHOOSEAUX;
-      //return;
-      ////////////////////////////////////////////////////////////
       if(myInputAlreadyDefined == true) {
         currentChooseInputIndex = myInput;
         currentStage = STAGE_COLLECTAUX;
@@ -86,13 +74,6 @@ void loopApp() {
         return;
       }
       showChooseAuxScreen();
-      ////////////////////////////////////////////////////////////
-      // TODO: configure stuff with encoder.
-      // for now set the aux hardcoded
-      //myAux = 0;
-      //myAuxAlreadyDefined = true;
-      //currentStage = STAGE_RUN;
-      ////////////////////////////////////////////////////////////
       return;
     case STAGE_COLLECTALLDATA:
       if(getPercentCollectedAllData() != 100) {
@@ -124,51 +105,58 @@ void handleEncoderChange(uint8_t eIdx, bool doIncrement) {
 void handleEncoderPush(uint8_t eIdx, int holdTime) { 
   switch(currentStage) {
     case STAGE_CHOOSEINPUT:
-      if(holdTime < 300) {
-        return;  
-      }
       myInput = currentChooseInputIndex;
       myInputAlreadyDefined = true;
       return;
 
     case STAGE_CHOOSEAUX:
-      if(holdTime < 300) {
-        return;  
-      }
       myAux = currentChooseAuxIndex;
       myAuxAlreadyDefined = true;
+      return;
+
+    case STAGE_RUN:
+      if(eIdx == 0) {
+        // long press -> back to menu
+        if(holdTime > 3000) {
+          myAuxAlreadyDefined = false;
+          myInputAlreadyDefined = false;
+          currentStage = STAGE_CHOOSEINPUT;
+          return;
+        }
+        // short press -> toggle headphone volume control
+        headPhoneLevelMode = !headPhoneLevelMode;
+        return;
+      }
+      //if(eIdx == 3) {
+      linkMyLevelMode = !linkMyLevelMode;
+      //}
       return;
   }
 }
 
 void handleEncoderChangeStageRun(uint8_t eIdx, bool doIncrement) {
   // TODO relation between encoder index and function to call
-  if(eIdx == 5) {  // enc 0: headphone volume
-    return changeHeadphoneVolume(doIncrement);
-  }
   
-  if(eIdx == 0) { // enc 1: groupMix (all others) to headphone
+  if(eIdx == 0) { // 1st encoder: groupMix (all others) to headphone or headphone volume
+    if(headPhoneLevelMode == true) {
+      return changeHeadphoneVolume(doIncrement);
+    }
     return changeGroupMixVolume(doIncrement);
   }
-  if(eIdx == 1) { // enc 2: me to headphones
+  if(eIdx == 1) { // 2nd encoder: me to headphones
     changeMyInputToHeadphonesVolume(doIncrement);
     if(linkMyLevelMode == true) {
       setMyInputToMasterVolume(inputToAuxLevels[myInput][myAux]);
     }
     return;
   }
-  if(eIdx == 2) { // enc 3: me to master volume
+  if(eIdx == 2) { // 3rd encoder: me to master volume
     changeMyInputToMasterVolume(doIncrement);
     if(linkMyLevelMode == true) {
       setMyInputToHeadphonesVolume(inputToMasterLevels[myInput]);
     }
     return;
   }
-
-
-
-  
-  
 }
 
 void changeHeadphoneVolume(bool doIncrement) {
@@ -177,9 +165,8 @@ void changeHeadphoneVolume(bool doIncrement) {
     ? incrementInternalLevelBy(newValue, stepSize)
     : decrementInternalLevelBy(newValue, stepSize);
 
-
   if(auxLevels[myAux] == newValue) {
-    // no change
+    // no change - nothing to do...
     return;
   }
   auxLevels[myAux] = newValue;
@@ -225,7 +212,7 @@ void handleMonoStereoCombinationsForAuxMix(uint8_t inIndex, uint8_t auxIndex, ui
   //debug("inIsStereo " + String(inIsStereo) + " for i." + String(inIndex) );
   //debug("auxIsStereo " + String(auxIsStereo) + " for a." + String(auxIndex) );
 
-  // all scenarios: mono -> mono AND stereo -> stereo  AND stereo -> mono AND mono-> stereo
+  // all scenarios: mono -> mono AND stereo -> stereo  AND stereo -> mono AND mono -> stereo
   if(inputToAuxLevels[inIndex][auxIndex] != newValueInternal) {
     inputToAuxLevels[inIndex][auxIndex] = newValueInternal;
     sendMixerCommand(

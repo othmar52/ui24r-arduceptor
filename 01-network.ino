@@ -21,19 +21,10 @@ void setupNetwork()
 }
 
 void connectWlan() {
-               
-   Serial.println("Connecting to ");
-   Serial.println(ssid); 
-
+   debug("Connecting to ");
+   debug(ssid);
    WiFi.begin(ssid, pass);
    WiFi.setAutoReconnect (true);
-   //while (WiFi.status() != WL_CONNECTED) 
-   //   {
-   //     delay(500);
-   //     Serial.print(".");
-   //   }
-  //Serial.println("");
-  //Serial.println("WiFi connected");
 }
 
 void reconnectWlan() {
@@ -47,18 +38,14 @@ void reconnectWlan() {
 void loopNetwork() {
 
   if (!ws.isConnected()) {
-    Serial.println("connecting to websocket...");
-    //ws.connect("echo.websocket.org", "/", 443);
-    //ws.connect("10.0.1.251", "/", 2332);
+    debug("connecting to websocket...");
     ws.connect("10.0.1.124", "/", 80);
-  } else {
-    //Serial.println("websocket is alread connected...");
-    //ws.send("3:::ALIVE");
+    return;
+  }
 
-    String msg;
-    if (ws.getMessage(msg)) {
-      handleIncomingMixerMessage(msg);
-    }
+  String msg;
+  if (ws.getMessage(msg)) {
+    handleIncomingMixerMessage(msg);
   }
 
   if(millis() - websocketAliveLast >= websocketInterval) {

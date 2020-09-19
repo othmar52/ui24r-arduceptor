@@ -18,7 +18,7 @@ uint8_t myAux = 0;
 bool limitToZeroDbMode = true;
 bool linkMyLevelMode = true;
 
-uint8_t currentStage = 0;
+uint8_t currentStage = STAGE_WELCOME;
 
 #include <Wire.h>
 #include "Adafruit_MCP23017.h"
@@ -27,15 +27,13 @@ Adafruit_MCP23017 mcp1;
 Adafruit_MCP23017* mcpr = &mcp1;
 
 void setup() {
-  Serial.begin(19200);
+  //Serial.begin(19200);
   pinMode(D1, INPUT);
   pinMode(D2, INPUT);
   mcp1.begin(0);
-  
 
   setupEncoders();
   setupNetwork();
-  //setupEncoder();
   setupDisplaystuff();
 }
 void loop() {
@@ -47,5 +45,5 @@ void loop() {
 
 
 void debug(String msg) {
-  Serial.println(msg);
+  //Serial.println(msg);
 }
